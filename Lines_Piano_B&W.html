@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Rotation Grid</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(45px, 1fr));
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 0px;
+            margin-top: -10px;
+            overflow: hidden;
+        }
+
+        .line {
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            --line-width-scale: 1.2;
+            transform: scaleX(var(--line-width-scale));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .line::before {
+            content: '';
+            background-color: #000000;
+            width: 1px;
+            height: 45px;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridContainer = document.getElementById('grid-container');
+            const actualGridRowHeight = 40;
+            const actualGridColWidth = 20;
+            const growDuration = 500;
+            const shrinkDelay = 1500;
+            const initialScaleX = 1.2;
+            const targetScaleX = 10;
+
+            const lineStates = new Map();
+            const lineTimeouts = new Map();
+            
+            let isMouseDown = false;
+            let affectionRadius = 50;
+            const minRadius = 50;
+            const maxRadius = 500;
+            const radiusGrowthRate = 100;
+            let radiusGrowthInterval = null;
+            let mouseX = 0;
+            let mouseY = 0;
+
+            const clearAllLineAnimations = () => {
+                lineStates.forEach(state => {
+                    if (state.animationFrameId) {
+                        cancelAnimationFrame(state.animationFrameId);
+                    }
+                    state.isActive = false;
+                    state.isGrowing = false;
+                    state.shouldShrinkAfterGrowth = false;
+                    state.animationFrameId = null;
+                    if (state.lineElement) {
+                        state.lineElement.style.setProperty('--line-width-scale', `${initialScaleX}`);
+                    }
+                });
+                lineTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                lineTimeouts.clear();
+                lineStates.clear();
+            };
+
+            const getLineCenter = (line) => {
+                const rect = line.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            };
+
+            const getDistance = (x1, y1, x2, y2) => {
+                return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            };
+
+            function easeOutQuad(t) {
+                return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+            }
+
+            const activateLinesInRadius = () => {
+                if (!isMouseDown) return;
+
+                const currentTime = performance.now();
+
+                lineStates.forEach((state, line) => {
+                    const center = getLineCenter(line);
+                    const distance = getDistance(mouseX, mouseY, center.x, center.y);
+
+                    if (distance <= affectionRadius) {
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.isGrowing = true;
+                            state.shouldShrinkAfterGrowth = false;
+                            state.activationTime = currentTime;
+                            state.startTime = currentTime;
+                            state.startScaleX = state.currentScaleX;
+                            state.endScaleX = targetScaleX;
+
+                            if (lineTimeouts.has(line)) {
+                                clearTimeout(lineTimeouts.get(line));
+                                lineTimeouts.delete(line);
+                            }
+
+                            const animateGrowth = (time) => {
+                                if (!state.isActive || !state.isGrowing) {
+                                    state.animationFrameId = null;
+                                    return;
+                                }
+
+                                const elapsed = time - state.startTime;
+                                let progress = Math.min(elapsed / growDuration, 1);
+                                progress = easeOutQuad(progress);
+
+                                state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                                state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                                if (progress < 1) {
+                                    state.animationFrameId = requestAnimationFrame(animateGrowth);
+                                } else {
+                                    state.animationFrameId = null;
+                                    state.isGrowing = false;
+
+                                    if (state.shouldShrinkAfterGrowth) {
+                                        state.shouldShrinkAfterGrowth = false;
+                                        state.startTime = performance.now();
+                                        state.startScaleX = state.currentScaleX;
+                                        state.endScaleX = initialScaleX;
+                                        
+                                        const animateShrinkNow = (time) => {
+                                            const elapsed = time - state.startTime;
+                                            let progress = Math.min(elapsed / shrinkDelay, 1);
+                                            progress = easeOutQuad(progress);
+
+                                            state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                                            state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                                            if (progress < 1) {
+                                                state.animationFrameId = requestAnimationFrame(animateShrinkNow);
+                                            } else {
+                                                state.lineElement.style.setProperty('--line-width-scale', `${initialScaleX}`);
+                                                state.isActive = false;
+                                                lineTimeouts.delete(line);
+                                            }
+                                        };
+                                        state.animationFrameId = requestAnimationFrame(animateShrinkNow);
+                                    } else {
+                                        state.isActive = true;
+                                    }
+                                }
+                            };
+                            state.animationFrameId = requestAnimationFrame(animateGrowth);
+                        }
+                    }
+                });
+            };
+
+            const populateGrid = () => {
+                clearAllLineAnimations();
+                gridContainer.innerHTML = '';
+
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const rowsThatFit = Math.floor(viewportHeight / actualGridRowHeight);
+                const colsThatFit = Math.floor(viewportWidth / actualGridColWidth);
+                const numLinesToCreate = rowsThatFit * colsThatFit;
+
+                for (let i = 0; i < numLinesToCreate; i++) {
+                    const line = document.createElement('div');
+                    line.classList.add('line');
+                    gridContainer.appendChild(line);
+
+                    lineStates.set(line, {
+                        lineElement: line,
+                        currentScaleX: initialScaleX,
+                        isActive: false,
+                        isGrowing: false,
+                        shouldShrinkAfterGrowth: false,
+                        animationFrameId: null,
+                        startTime: 0,
+                        startScaleX: initialScaleX,
+                        endScaleX: initialScaleX,
+                        activationTime: 0
+                    });
+
+                    line.addEventListener('mouseenter', () => {
+                        if (isMouseDown) return;
+
+                        const state = lineStates.get(line);
+
+                        if (!state.isGrowing && state.isActive) {
+                            if (state.animationFrameId) {
+                                cancelAnimationFrame(state.animationFrameId);
+                                state.animationFrameId = null;
+                            }
+                            state.isActive = false;
+                        }
+
+                        if (lineTimeouts.has(line)) {
+                            clearTimeout(lineTimeouts.get(line));
+                            lineTimeouts.delete(line);
+                        }
+
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.isGrowing = true;
+                            state.shouldShrinkAfterGrowth = false;
+                            state.startTime = performance.now();
+                            state.startScaleX = state.currentScaleX;
+                            state.endScaleX = targetScaleX;
+
+                            const animateGrowth = (currentTime) => {
+                                if (!state.isActive || !state.isGrowing) {
+                                    state.animationFrameId = null;
+                                    return;
+                                }
+
+                                const elapsed = currentTime - state.startTime;
+                                let progress = Math.min(elapsed / growDuration, 1);
+                                progress = easeOutQuad(progress);
+
+                                state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                                state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                                if (progress < 1) {
+                                    state.animationFrameId = requestAnimationFrame(animateGrowth);
+                                } else {
+                                    state.animationFrameId = null;
+                                    state.isGrowing = false;
+
+                                    if (state.shouldShrinkAfterGrowth) {
+                                        state.shouldShrinkAfterGrowth = false;
+                                        state.startTime = performance.now();
+                                        state.startScaleX = state.currentScaleX;
+                                        state.endScaleX = initialScaleX;
+                                        
+                                        const animateShrinkNow = (time) => {
+                                            const elapsed = time - state.startTime;
+                                            let progress = Math.min(elapsed / shrinkDelay, 1);
+                                            progress = easeOutQuad(progress);
+
+                                            state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                                            state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                                            if (progress < 1) {
+                                                state.animationFrameId = requestAnimationFrame(animateShrinkNow);
+                                            } else {
+                                                state.lineElement.style.setProperty('--line-width-scale', `${initialScaleX}`);
+                                                state.isActive = false;
+                                                lineTimeouts.delete(line);
+                                            }
+                                        };
+                                        state.animationFrameId = requestAnimationFrame(animateShrinkNow);
+                                    } else {
+                                        state.isActive = true;
+                                    }
+                                }
+                            };
+                            state.animationFrameId = requestAnimationFrame(animateGrowth);
+                        }
+                    });
+
+                    line.addEventListener('mouseleave', () => {
+                        if (isMouseDown) return;
+
+                        const state = lineStates.get(line);
+
+                        if (state.isGrowing) {
+                            state.shouldShrinkAfterGrowth = true;
+                            return;
+                        }
+
+                        if (state.isActive) {
+                            if (lineTimeouts.has(line)) {
+                                clearTimeout(lineTimeouts.get(line));
+                                lineTimeouts.delete(line);
+                            }
+
+                            const timeoutId = setTimeout(() => {
+                                state.isActive = false;
+                                if (state.animationFrameId) {
+                                    cancelAnimationFrame(state.animationFrameId);
+                                    state.animationFrameId = null;
+                                }
+
+                                state.startScaleX = state.currentScaleX;
+                                state.endScaleX = initialScaleX;
+                                state.startTime = performance.now();
+
+                                const animateShrink = (currentTime) => {
+                                    if (state.isActive) {
+                                        state.animationFrameId = null;
+                                        return;
+                                    }
+
+                                    const elapsed = currentTime - state.startTime;
+                                    let progress = Math.min(elapsed / shrinkDelay, 1);
+                                    progress = easeOutQuad(progress);
+
+                                    state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                                    state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                                    if (progress < 1) {
+                                        state.animationFrameId = requestAnimationFrame(animateShrink);
+                                    } else {
+                                        state.lineElement.style.setProperty('--line-width-scale', `${initialScaleX}`);
+                                        state.isActive = false;
+                                        lineTimeouts.delete(line);
+                                    }
+                                };
+                                state.animationFrameId = requestAnimationFrame(animateShrink);
+                            }, 0);
+
+                            lineTimeouts.set(line, timeoutId);
+                        }
+                    });
+                }
+            };
+
+            document.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                affectionRadius = minRadius;
+                
+                activateLinesInRadius();
+                
+                radiusGrowthInterval = setInterval(() => {
+                    if (affectionRadius < maxRadius) {
+                        affectionRadius += radiusGrowthRate / 60;
+                        activateLinesInRadius();
+                    }
+                }, 1000 / 60);
+            });
+
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                if (radiusGrowthInterval) {
+                    clearInterval(radiusGrowthInterval);
+                    radiusGrowthInterval = null;
+                }
+                affectionRadius = minRadius;
+                
+                const activeLines = [];
+                lineStates.forEach((state, line) => {
+                    if (state.isActive) {
+                        activeLines.push({ line, state, time: state.activationTime });
+                    }
+                });
+                
+                activeLines.sort((a, b) => a.time - b.time);
+                
+                activeLines.forEach((item, index) => {
+                    const { line, state } = item;
+                    
+                    if (state.animationFrameId) {
+                        cancelAnimationFrame(state.animationFrameId);
+                        state.animationFrameId = null;
+                    }
+                    
+                    if (lineTimeouts.has(line)) {
+                        clearTimeout(lineTimeouts.get(line));
+                        lineTimeouts.delete(line);
+                    }
+
+                    const staggerDelay = index * 10;
+                    
+                    const timeoutId = setTimeout(() => {
+                        state.isActive = false;
+                        state.startTime = performance.now();
+                        state.startScaleX = state.currentScaleX;
+                        state.endScaleX = initialScaleX;
+
+                        const animateShrink = (currentTime) => {
+                            if (state.isActive) {
+                                state.animationFrameId = null;
+                                return;
+                            }
+
+                            const elapsed = currentTime - state.startTime;
+                            let progress = Math.min(elapsed / shrinkDelay, 1);
+                            progress = easeOutQuad(progress);
+
+                            state.currentScaleX = state.startScaleX + (state.endScaleX - state.startScaleX) * progress;
+                            state.lineElement.style.setProperty('--line-width-scale', `${state.currentScaleX}`);
+
+                            if (progress < 1) {
+                                state.animationFrameId = requestAnimationFrame(animateShrink);
+                            } else {
+                                state.lineElement.style.setProperty('--line-width-scale', `${initialScaleX}`);
+                                state.isActive = false;
+                                lineTimeouts.delete(line);
+                            }
+                        };
+                        state.animationFrameId = requestAnimationFrame(animateShrink);
+                    }, staggerDelay);
+
+                    lineTimeouts.set(line, timeoutId);
+                });
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                if (isMouseDown) {
+                    activateLinesInRadius();
+                }
+            });
+
+            populateGrid();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(populateGrid, 200);
+            });
+        });
+    </script>
+</body>
+</html>

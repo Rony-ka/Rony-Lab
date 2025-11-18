@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Line Rotation</title>
+    <style>
+        /* style.css */
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+            /* Disable text selection and callouts on mobile for a cleaner interaction */
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            /* Prevent default pan and zoom gestures to ensure the touch event is handled by our script */
+            touch-action: none;
+        }
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(45px, 1fr));
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        .line {
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .line::before {
+            content: '';
+            background-color: #000000;
+            width: 1.5px;
+            height: 46px;
+            border-radius: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-container"></div>
+
+    <script>
+        // script.js
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridContainer = document.getElementById('grid-container');
+
+            // --- Grid cell dimensions (must match CSS) ---
+            const actualGridRowHeight = 45;
+            const actualGridColWidth = 20;
+            // --- END Grid cell dimensions ---
+
+            // --- Interaction parameters ---
+            const interactionRadius = 2000; // Large radius so all lines are affected
+            const lerpFactor = 0.02; // Controls the "lag" or smoothing of the rotation (lower = slower, heavier feel)
+            const pressedLerpFactor = 0.04; // Faster lerp when pressed (for quick return)
+            const pressedEffectMultiplier = 0; // How much to reduce effect when mouse is pressed (0 = no effect)
+            const baseEffectStrength = 0.8; // Overall effect strength (0.8 = 80% of original)
+            // --- END Interaction parameters ---
+
+            // Change mousePos to a mutable state for touch
+            let interactionPoint = { x: null, y: null, active: false };
+            let isPressed = false; // Track if mouse/touch is pressed
+            let lineElements = [];
+
+            const lerp = (a, b, t) => a + (b - a) * t;
+
+            const clearAllLineAnimations = () => {
+                gridContainer.innerHTML = '';
+                lineElements = [];
+            };
+
+            const populateGrid = () => {
+                clearAllLineAnimations();
+
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const rowsThatFit = Math.floor(viewportHeight / actualGridRowHeight);
+                const colsThatFit = Math.floor(viewportWidth / actualGridColWidth);
+
+                const numLinesToCreate = rowsThatFit * colsThatFit;
+
+                for (let i = 0; i < numLinesToCreate; i++) {
+                    const line = document.createElement('div');
+                    line.classList.add('line');
+                    gridContainer.appendChild(line);
+                    // Store the current and target rotation values directly on the element
+                    line.currentRotation = 0;
+                    line.targetRotation = 0;
+                    lineElements.push(line);
+                }
+                
+                // Cache line positions after they're rendered
+                setTimeout(() => {
+                    lineElements.forEach(line => {
+                        const rect = line.getBoundingClientRect();
+                        line.cachedCenterX = rect.left + rect.width / 2;
+                        line.cachedCenterY = rect.top + rect.height / 2;
+                    });
+                }, 0);
+                
+                requestAnimationFrame(animateLines);
+            };
+
+            const animateLines = () => {
+                lineElements.forEach(line => {
+                    // Use cached positions instead of getBoundingClientRect
+                    const lineCenterX = line.cachedCenterX;
+                    const lineCenterY = line.cachedCenterY;
+
+                    // Only animate if there's an active interaction point
+                    let newTargetRotation = 0;
+
+                    if (interactionPoint.active) {
+                        const dx = interactionPoint.x - lineCenterX;
+                        const dy = interactionPoint.y - lineCenterY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        // Calculate angle towards the cursor (in radians, then convert to degrees)
+                        const angleToMouse = Math.atan2(dy, dx);
+                        const angleDegrees = angleToMouse * (180 / Math.PI);
+                        
+                        // Rotate to point towards cursor (add 90 degrees since lines start vertical)
+                        const targetAngle = angleDegrees + 90;
+                        
+                        // Calculate influence based on distance (exponential falloff for smoother effect)
+                        const influence = Math.exp(-distance / 300); // Exponential decay
+                        
+                        // Apply influence to rotation
+                        let rotationInfluence = influence * baseEffectStrength;
+                        
+                        // If mouse is pressed, reduce the effect
+                        if (isPressed) {
+                            rotationInfluence *= pressedEffectMultiplier;
+                        }
+                        
+                        newTargetRotation = targetAngle * rotationInfluence;
+                    }
+
+                    // Interpolate the line's current rotation towards the target
+                    // Use faster lerp when pressed for quicker return
+                    const currentLerpFactor = isPressed ? pressedLerpFactor : lerpFactor;
+                    line.currentRotation = lerp(line.currentRotation, newTargetRotation, currentLerpFactor);
+
+                    // Apply the new rotation
+                    line.style.transform = `rotate(${line.currentRotation}deg)`;
+                });
+
+                requestAnimationFrame(animateLines);
+            };
+
+            // Use touch events for mobile compatibility
+            window.addEventListener('touchstart', (e) => {
+                // Prevent default browser actions like scrolling or zooming
+                e.preventDefault();
+                const touch = e.touches[0];
+                interactionPoint.x = touch.clientX;
+                interactionPoint.y = touch.clientY;
+                interactionPoint.active = true;
+                isPressed = true; // Mark as pressed
+            }, { passive: false }); // { passive: false } allows preventDefault to work
+
+            window.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                interactionPoint.x = touch.clientX;
+                interactionPoint.y = touch.clientY;
+            });
+
+            window.addEventListener('touchend', () => {
+                // Deactivate the interaction point to return lines to their original state
+                interactionPoint.active = false;
+                interactionPoint.x = null;
+                interactionPoint.y = null;
+                isPressed = false; // Mark as not pressed
+            });
+
+            // Also keep mouse events for desktop users
+            window.addEventListener('mousemove', (e) => {
+                interactionPoint.x = e.clientX;
+                interactionPoint.y = e.clientY;
+                interactionPoint.active = true;
+            });
+
+            // Mouse down event
+            window.addEventListener('mousedown', (e) => {
+                isPressed = true;
+            });
+
+            // Mouse up event
+            window.addEventListener('mouseup', (e) => {
+                isPressed = false;
+            });
+
+            // Add mouseleave to reset on desktop when mouse leaves the viewport
+            window.addEventListener('mouseleave', () => {
+                interactionPoint.active = false;
+                interactionPoint.x = null;
+                interactionPoint.y = null;
+                isPressed = false;
+            });
+
+            populateGrid();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    populateGrid();
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

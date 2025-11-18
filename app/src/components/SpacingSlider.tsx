@@ -1,0 +1,143 @@
+import React from 'react';
+import { MenuTheme } from './MenuBar';
+
+interface SpacingSliderProps {
+  value: number;
+  onChange: (value: number) => void;
+  theme: MenuTheme;
+  min?: number;
+  max?: number;
+  defaultValue?: number;
+}
+
+export const SpacingSlider: React.FC<SpacingSliderProps> = ({
+  value,
+  onChange,
+  theme,
+  min = 10,
+  max = 70,
+  defaultValue = 20,
+}) => {
+  const isDark = theme === 'dark';
+  const middleValue = defaultValue;
+
+  // Convert actual value to slider position (non-linear scale)
+  const valueToSlider = (val: number): number => {
+    if (val <= middleValue) {
+      // Map 10-20 to 0-50
+      return ((val - min) / (middleValue - min)) * 50;
+    } else {
+      // Map 20-60 to 50-100
+      return 50 + ((val - middleValue) / (max - middleValue)) * 50;
+    }
+  };
+
+  // Convert slider position to actual value (non-linear scale)
+  const sliderToValue = (sliderVal: number): number => {
+    if (sliderVal <= 50) {
+      // Map 0-50 to 10-20
+      return min + (sliderVal / 50) * (middleValue - min);
+    } else {
+      // Map 50-100 to 20-60
+      return middleValue + ((sliderVal - 50) / 50) * (max - middleValue);
+    }
+  };
+
+  const sliderValue = valueToSlider(value);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSliderValue = Number(e.target.value);
+    const newValue = sliderToValue(newSliderValue);
+    onChange(Math.round(newValue));
+  };
+
+  const handleDoubleClick = () => {
+    onChange(defaultValue);
+  };
+
+  return (
+    <div
+      className="w-full flex items-center justify-center"
+      style={{
+        position: 'absolute',
+        bottom: '16px',
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        pointerEvents: 'none',
+      }}
+    >
+      <div 
+        className="flex flex-col gap-[10px] px-[3px] py-[2px] rounded-[9px] overflow-hidden"
+        style={{
+          backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          pointerEvents: 'auto'
+        }}
+      >
+        <div className="flex gap-[8px] h-[34px] items-center px-[8px] py-[3px] rounded-[10px]">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={sliderValue}
+                  onChange={handleChange}
+                  onDoubleClick={handleDoubleClick}
+                  style={{
+                    width: '180px',
+                    height: '4px',
+                    borderRadius: '2px',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    background: isDark
+                      ? `linear-gradient(to right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.3) ${sliderValue}%, rgba(255,255,255,0.1) ${sliderValue}%, rgba(255,255,255,0.1) 100%)`
+                      : `linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.3) ${sliderValue}%, rgba(0,0,0,0.1) ${sliderValue}%, rgba(0,0,0,0.1) 100%)`,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                  className="slider"
+                />
+        </div>
+      </div>
+      <style>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #333333;
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .slider::-webkit-slider-thumb:hover {
+          background: #333333;
+          transform: scale(1.15);
+        }
+        .slider::-webkit-slider-thumb:active {
+          transform: scale(1.05);
+        }
+        .slider::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #333333;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s ease-in-out;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .slider::-moz-range-thumb:hover {
+          background: #333333;
+          transform: scale(1.15);
+        }
+        .slider::-moz-range-thumb:active {
+          transform: scale(1.05);
+        }
+      `}</style>
+    </div>
+  );
+};
+

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Rotation Grid</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0E0E0E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(45px, 1fr));
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 0px;
+            margin-top: -10px;
+            overflow: hidden;
+        }
+
+        .line {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .line::before {
+            content: '';
+            background-color: transparent;
+            width: 1.2px;
+            height: 45px;
+            transition: width 1.5s ease-out, background-color 1.5s linear;
+        }
+
+        .line.active::before {
+            background-color: #C880FD;
+            width: 10px;
+            transition: width 1s ease-out, background-color 1.5s linear;
+        }
+
+        .line.active.growing::before {
+            background-color: #F03D2A;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridContainer = document.getElementById('grid-container');
+            const actualGridRowHeight = 40;
+            const actualGridColWidth = 20;
+
+            const lineStates = new Map();
+            const lineTimeouts = new Map();
+            
+            let isMouseDown = false;
+            let affectionRadius = 50; // Starting radius in pixels
+            const minRadius = 50;
+            const maxRadius = 500;
+            const radiusGrowthRate = 100; // pixels per second
+            let radiusGrowthInterval = null;
+            let mouseX = 0;
+            let mouseY = 0;
+
+            const clearAllLineAnimations = () => {
+                lineStates.forEach(state => {
+                    state.isActive = false;
+                    state.isGrowing = false;
+                    state.shouldShrinkAfterGrowth = false;
+                    if (state.lineElement) {
+                        state.lineElement.classList.remove('active', 'growing');
+                    }
+                });
+                lineTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                lineTimeouts.clear();
+                lineStates.clear();
+            };
+
+            const getLineCenter = (line) => {
+                const rect = line.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            };
+
+            const getDistance = (x1, y1, x2, y2) => {
+                return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            };
+
+            const activateLinesInRadius = () => {
+                if (!isMouseDown) return;
+
+                const currentTime = performance.now();
+
+                lineStates.forEach((state, line) => {
+                    const center = getLineCenter(line);
+                    const distance = getDistance(mouseX, mouseY, center.x, center.y);
+
+                    if (distance <= affectionRadius) {
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.isGrowing = true;
+                            state.shouldShrinkAfterGrowth = false;
+                            state.activationTime = currentTime;
+                            line.classList.add('active');
+
+                            if (lineTimeouts.has(line)) {
+                                clearTimeout(lineTimeouts.get(line));
+                                lineTimeouts.delete(line);
+                            }
+
+                            state.growTimeout = setTimeout(() => {
+                                state.isGrowing = false;
+                                line.classList.add('growing');
+
+                                if (state.shouldShrinkAfterGrowth) {
+                                    state.shouldShrinkAfterGrowth = false;
+                                    const timeoutId = setTimeout(() => {
+                                        line.classList.remove('active', 'growing');
+                                        state.isActive = false;
+                                        lineTimeouts.delete(line);
+                                    }, 1500);
+                                    lineTimeouts.set(line, timeoutId);
+                                }
+                            }, 1000);
+                        }
+                    }
+                });
+            };
+
+            const populateGrid = () => {
+                clearAllLineAnimations();
+                gridContainer.innerHTML = '';
+
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const rowsThatFit = Math.floor(viewportHeight / actualGridRowHeight);
+                const colsThatFit = Math.floor(viewportWidth / actualGridColWidth);
+                const numLinesToCreate = rowsThatFit * colsThatFit;
+
+                for (let i = 0; i < numLinesToCreate; i++) {
+                    const line = document.createElement('div');
+                    line.classList.add('line');
+                    gridContainer.appendChild(line);
+
+                    lineStates.set(line, {
+                        lineElement: line,
+                        isActive: false,
+                        isGrowing: false,
+                        shouldShrinkAfterGrowth: false,
+                        activationTime: 0,
+                        growTimeout: null
+                    });
+
+                    line.addEventListener('mouseenter', () => {
+                        if (isMouseDown) return; // Skip hover behavior when mouse is pressed
+
+                        const state = lineStates.get(line);
+
+                        if (state.isGrowing && !state.isActive) {
+                            return;
+                        }
+
+                        if (lineTimeouts.has(line)) {
+                            clearTimeout(lineTimeouts.get(line));
+                            lineTimeouts.delete(line);
+                        }
+
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.isGrowing = true;
+                            state.shouldShrinkAfterGrowth = false;
+                            line.classList.add('active');
+
+                            setTimeout(() => {
+                                state.isGrowing = false;
+                                line.classList.add('growing');
+
+                                if (state.shouldShrinkAfterGrowth) {
+                                    state.shouldShrinkAfterGrowth = false;
+                                    const timeoutId = setTimeout(() => {
+                                        line.classList.remove('active', 'growing');
+                                        state.isActive = false;
+                                        lineTimeouts.delete(line);
+                                    }, 1500);
+                                    lineTimeouts.set(line, timeoutId);
+                                }
+                            }, 1000);
+                        }
+                    });
+
+                    line.addEventListener('mouseleave', () => {
+                        if (isMouseDown) return; // Skip hover behavior when mouse is pressed
+
+                        const state = lineStates.get(line);
+
+                        if (state.isGrowing) {
+                            state.shouldShrinkAfterGrowth = true;
+                            return;
+                        }
+
+                        if (state.isActive) {
+                            if (lineTimeouts.has(line)) {
+                                clearTimeout(lineTimeouts.get(line));
+                                lineTimeouts.delete(line);
+                            }
+
+                            const timeoutId = setTimeout(() => {
+                                line.classList.remove('active', 'growing');
+                                state.isActive = false;
+                                lineTimeouts.delete(line);
+                            }, 1500);
+
+                            lineTimeouts.set(line, timeoutId);
+                        }
+                    });
+                }
+            };
+
+            // Mouse event handlers
+            document.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                affectionRadius = minRadius;
+                
+                activateLinesInRadius();
+                
+                // Start growing the radius
+                radiusGrowthInterval = setInterval(() => {
+                    if (affectionRadius < maxRadius) {
+                        affectionRadius += radiusGrowthRate / 60; // ~60fps
+                        activateLinesInRadius();
+                    }
+                }, 1000 / 60);
+            });
+
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                if (radiusGrowthInterval) {
+                    clearInterval(radiusGrowthInterval);
+                    radiusGrowthInterval = null;
+                }
+                affectionRadius = minRadius;
+                
+                // Collect all active lines with their activation times
+                const activeLines = [];
+                lineStates.forEach((state, line) => {
+                    if (state.isActive) {
+                        activeLines.push({ line, state, time: state.activationTime });
+                    }
+                });
+                
+                // Sort by activation time (earliest first)
+                activeLines.sort((a, b) => a.time - b.time);
+                
+                // Start shrinking lines in order with staggered delays
+                activeLines.forEach((item, index) => {
+                    const { line, state } = item;
+                    
+                    // Clear the grow timeout if it hasn't fired yet
+                    if (state.growTimeout) {
+                        clearTimeout(state.growTimeout);
+                        state.growTimeout = null;
+                    }
+                    
+                    if (lineTimeouts.has(line)) {
+                        clearTimeout(lineTimeouts.get(line));
+                        lineTimeouts.delete(line);
+                    }
+
+                    // Each line waits a bit longer than the previous one
+                    const staggerDelay = index * 5; // 5ms between each line
+                    
+                    const timeoutId = setTimeout(() => {
+                        // Remove active class to trigger shrink animation
+                        line.classList.remove('active', 'growing');
+                        
+                        // Wait for the CSS transition to complete (1.5s) before resetting state
+                        setTimeout(() => {
+                            state.isActive = false;
+                            state.isGrowing = false;
+                            lineTimeouts.delete(line);
+                        }, 1500);
+                    }, staggerDelay);
+
+                    lineTimeouts.set(line, timeoutId);
+                });
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                if (isMouseDown) {
+                    activateLinesInRadius();
+                }
+            });
+
+            populateGrid();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(populateGrid, 200);
+            });
+        });
+    </script>
+</body>
+</html>

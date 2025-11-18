@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Rotation Grid</title>
+    <style>
+        html, body {
+            margin: 0;
+            margin-top: -5px;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0E0E0E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(45px, 1fr));
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        .line {
+            width: 100px;
+            height: 100px;
+            margin-left: -40px;
+            margin-right: -40px;
+            margin-top: -10px;
+            margin-bottom: -10px;
+            transform-origin: center center;
+            --line-rotation: 0deg;
+            transform: rotate(var(--line-rotation));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .line:not(.is-spinning) {
+            transition: transform 1s ease-out;
+        }
+
+        .line::before {
+            content: '';
+            background-color: transparent;
+            width: 1px;
+            height: 45px;
+        }
+
+        @keyframes color-change {
+            10% {
+                background-color: #F03D2A;
+            }
+            100% {
+                background-color: #C880FD;
+            }
+        }
+
+        @keyframes thickness-change {
+            10% {
+                transform: scaleX(10);
+            }
+            100% {
+                transform: scaleX(1.2);
+            }
+        }
+
+        .line.is-spinning::before {
+            animation: 
+                color-change 2s infinite,
+                thickness-change 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridContainer = document.getElementById('grid-container');
+            const actualGridRowHeight = 80;
+            const actualGridColWidth = 9;
+            const spinSpeed = 200;
+            const easeOutDelay = 2000;
+
+            const lineStates = new Map();
+            const lineTimeouts = new Map();
+            
+            let isMouseDown = false;
+            let affectionRadius = 50;
+            const minRadius = 50;
+            const maxRadius = 500;
+            const radiusGrowthRate = 100;
+            let radiusGrowthInterval = null;
+            let mouseX = 0;
+            let mouseY = 0;
+
+            const clearAllLineAnimations = () => {
+                lineStates.forEach(state => {
+                    if (state.animationFrameId) {
+                        cancelAnimationFrame(state.animationFrameId);
+                    }
+                    state.isActive = false;
+                    state.animationFrameId = null;
+                });
+                lineTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                lineTimeouts.clear();
+                lineStates.clear();
+            };
+
+            const getLineCenter = (line) => {
+                const rect = line.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            };
+
+            const getDistance = (x1, y1, x2, y2) => {
+                return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            };
+
+            const activateLinesInRadius = () => {
+                if (!isMouseDown) return;
+
+                const currentTime = performance.now();
+
+                lineStates.forEach((state, line) => {
+                    const center = getLineCenter(line);
+                    const distance = getDistance(mouseX, mouseY, center.x, center.y);
+
+                    if (distance <= affectionRadius) {
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.lastTime = currentTime;
+                            state.activationTime = currentTime;
+                            line.classList.add('is-spinning');
+
+                            if (lineTimeouts.has(line)) {
+                                clearTimeout(lineTimeouts.get(line));
+                                lineTimeouts.delete(line);
+                            }
+
+                            const animateLineSpin = (time) => {
+                                if (!state.isActive) {
+                                    line.classList.remove('is-spinning');
+                                    state.animationFrameId = null;
+                                    return;
+                                }
+
+                                const deltaTime = time - state.lastTime;
+                                state.currentRotation += (spinSpeed * (deltaTime / 1000));
+                                state.currentRotation %= 360;
+
+                                line.style.setProperty('--line-rotation', `${state.currentRotation}deg`);
+                                line.style.transform = `rotate(${state.currentRotation}deg)`;
+
+                                state.lastTime = time;
+                                state.animationFrameId = requestAnimationFrame(animateLineSpin);
+                            };
+                            state.animationFrameId = requestAnimationFrame(animateLineSpin);
+                        }
+                    }
+                });
+            };
+
+            const populateGrid = () => {
+                clearAllLineAnimations();
+                gridContainer.innerHTML = '';
+
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const rowsThatFit = Math.floor(viewportHeight / actualGridRowHeight);
+                const colsThatFit = Math.ceil(viewportWidth / actualGridColWidth);
+                const numLinesToCreate = rowsThatFit * colsThatFit;
+
+                for (let i = 0; i < numLinesToCreate; i++) {
+                    const line = document.createElement('div');
+                    line.classList.add('line');
+                    gridContainer.appendChild(line);
+
+                    lineStates.set(line, {
+                        currentRotation: 0,
+                        isActive: false,
+                        animationFrameId: null,
+                        lastTime: performance.now(),
+                        activationTime: 0
+                    });
+
+                    line.addEventListener('mouseover', () => {
+                        if (isMouseDown) return;
+
+                        if (lineTimeouts.has(line)) {
+                            clearTimeout(lineTimeouts.get(line));
+                            lineTimeouts.delete(line);
+                        }
+
+                        const state = lineStates.get(line);
+                        if (!state.isActive) {
+                            state.isActive = true;
+                            state.lastTime = performance.now();
+                            line.classList.add('is-spinning');
+                            
+                            const animateLineSpin = (currentTime) => {
+                                if (!state.isActive) {
+                                    line.classList.remove('is-spinning');
+                                    state.animationFrameId = null;
+                                    return;
+                                }
+
+                                const deltaTime = currentTime - state.lastTime;
+                                state.currentRotation += (spinSpeed * (deltaTime / 1000));
+                                state.currentRotation %= 360;
+
+                                line.style.setProperty('--line-rotation', `${state.currentRotation}deg`);
+                                line.style.transform = `rotate(${state.currentRotation}deg)`;
+
+                                state.lastTime = currentTime;
+                                state.animationFrameId = requestAnimationFrame(animateLineSpin);
+                            };
+                            state.animationFrameId = requestAnimationFrame(animateLineSpin);
+                        }
+                    });
+
+                    line.addEventListener('mouseout', () => {
+                        if (isMouseDown) return;
+
+                        const state = lineStates.get(line);
+                        if (state.isActive) {
+                            state.isActive = false;
+                            if (state.animationFrameId) {
+                                cancelAnimationFrame(state.animationFrameId);
+                                state.animationFrameId = null;
+                            }
+
+                            const timeoutId = setTimeout(() => {
+                                line.style.setProperty('--line-rotation', '0deg');
+                                line.style.transform = `rotate(0deg)`;
+                                lineTimeouts.delete(line);
+                                line.classList.remove('is-spinning');
+                            }, easeOutDelay);
+
+                            lineTimeouts.set(line, timeoutId);
+                        }
+                    });
+                }
+            };
+
+            document.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                affectionRadius = minRadius;
+                
+                activateLinesInRadius();
+                
+                radiusGrowthInterval = setInterval(() => {
+                    if (affectionRadius < maxRadius) {
+                        affectionRadius += radiusGrowthRate / 60;
+                        activateLinesInRadius();
+                    }
+                }, 1000 / 60);
+            });
+
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                if (radiusGrowthInterval) {
+                    clearInterval(radiusGrowthInterval);
+                    radiusGrowthInterval = null;
+                }
+                affectionRadius = minRadius;
+                
+                const activeLines = [];
+                lineStates.forEach((state, line) => {
+                    if (state.isActive) {
+                        activeLines.push({ line, state, time: state.activationTime });
+                    }
+                });
+                
+                activeLines.sort((a, b) => a.time - b.time);
+                
+                activeLines.forEach((item, index) => {
+                    const { line, state } = item;
+                    
+                    if (lineTimeouts.has(line)) {
+                        clearTimeout(lineTimeouts.get(line));
+                        lineTimeouts.delete(line);
+                    }
+
+                    const staggerDelay = index * 10;
+                    
+                    const timeoutId = setTimeout(() => {
+                        state.isActive = false;
+                        if (state.animationFrameId) {
+                            cancelAnimationFrame(state.animationFrameId);
+                            state.animationFrameId = null;
+                        }
+
+                        line.style.setProperty('--line-rotation', '0deg');
+                        line.style.transform = `rotate(0deg)`;
+                        line.classList.remove('is-spinning');
+                        lineTimeouts.delete(line);
+                    }, staggerDelay + easeOutDelay);
+
+                    lineTimeouts.set(line, timeoutId);
+                });
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                if (isMouseDown) {
+                    activateLinesInRadius();
+                }
+            });
+
+            populateGrid();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(populateGrid, 200);
+            });
+        });
+    </script>
+</body>
+</html>

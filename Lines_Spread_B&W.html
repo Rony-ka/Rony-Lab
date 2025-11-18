@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Rotation Grid</title>
+    <style>
+        /* style.css */
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            grid-template-rows: repeat(auto-fill, minmax(45px, 1fr));
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        .line {
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease-out;
+            border-radius: 5px;
+        }
+
+        .line::before {
+            content: '';
+            background-color: #000000;
+            width: 1.5px;
+            height: 46px;
+            border-radius: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-container"></div>
+
+    <script>
+        // script.js
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridContainer = document.getElementById('grid-container');
+
+            // --- Grid cell dimensions (must match CSS) ---
+            const actualGridRowHeight = 45;
+            const actualGridColWidth = 20;
+            // --- END Grid cell dimensions ---
+
+            // --- Interaction parameters ---
+            const baseInteractionRadius = 100; // Starting radius in pixels
+            const maxInteractionRadius = 400;  // Maximum radius when holding mouse
+            const radiusGrowthRate = 150;      // Pixels per second of growth
+            const maxMoveDistance = 40;        // Maximum horizontal movement for a line in pixels
+            // --- END Interaction parameters ---
+
+            let mousePos = { x: 0, y: 0 };
+            let lineElements = [];
+            let isMouseDown = false;
+            let mouseDownTime = 0;
+            let currentRadius = baseInteractionRadius;
+            let animationFrameId = null;
+
+            // Function to populate the grid with lines
+            const populateGrid = () => {
+                gridContainer.innerHTML = '';
+
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const rowsThatFit = Math.floor(viewportHeight / actualGridRowHeight);
+                const colsThatFit = Math.floor(viewportWidth / actualGridColWidth);
+
+                const numLinesToCreate = rowsThatFit * colsThatFit;
+
+                lineElements = [];
+
+                for (let i = 0; i < numLinesToCreate; i++) {
+                    const line = document.createElement('div');
+                    line.classList.add('line');
+                    gridContainer.appendChild(line);
+                    lineElements.push(line);
+                }
+                updateLinePositions();
+            };
+
+            // Function to update the position of each line based on mouse proximity
+            const updateLinePositions = () => {
+                lineElements.forEach(line => {
+                    const rect = line.getBoundingClientRect();
+                    const lineCenterX = rect.left + rect.width / 2;
+                    const lineCenterY = rect.top + rect.height / 2;
+
+                    const dx = mousePos.x - lineCenterX;
+                    const dy = mousePos.y - lineCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    let translateX = 0;
+
+                    if (distance < currentRadius) {
+                        const influence = 1 - (distance / currentRadius);
+                        const direction = Math.sign(dx);
+                        translateX = -direction * influence * maxMoveDistance;
+                    }
+
+                    line.style.transform = `translateX(${translateX}px)`;
+                });
+            };
+
+            // Animation loop for growing radius
+            const animate = () => {
+                if (isMouseDown) {
+                    const elapsedTime = (Date.now() - mouseDownTime) / 1000;
+                    currentRadius = Math.min(
+                        baseInteractionRadius + (radiusGrowthRate * elapsedTime),
+                        maxInteractionRadius
+                    );
+                } else {
+                    currentRadius = baseInteractionRadius;
+                }
+
+                updateLinePositions();
+
+                if (isMouseDown) {
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+            };
+
+            // Event listener for mouse movement
+            window.addEventListener('mousemove', (e) => {
+                mousePos.x = e.clientX;
+                mousePos.y = e.clientY;
+                if (!isMouseDown) {
+                    updateLinePositions();
+                }
+            });
+
+            // Event listener for mouse down
+            window.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseDownTime = Date.now();
+                mousePos.x = e.clientX;
+                mousePos.y = e.clientY;
+                animate();
+            });
+
+            // Event listener for mouse up
+            window.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                currentRadius = baseInteractionRadius;
+                updateLinePositions();
+            });
+
+            // Event listener for mouse leaving the window
+            window.addEventListener('mouseleave', () => {
+                if (isMouseDown) {
+                    isMouseDown = false;
+                    if (animationFrameId) {
+                        cancelAnimationFrame(animationFrameId);
+                        animationFrameId = null;
+                    }
+                    currentRadius = baseInteractionRadius;
+                    updateLinePositions();
+                }
+            });
+
+            // Initial population of the grid
+            populateGrid();
+
+            // Event listener for window resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    populateGrid();
+                    updateLinePositions();
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
