@@ -32,7 +32,7 @@ export const LinesRotationBW: React.FC<LinesRotationBWConfig> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineStatesRef = useRef<Map<HTMLDivElement, LineState>>(new Map());
-  const lineTimeoutsRef = useRef<Map<HTMLDivElement, NodeJS.Timeout>>(new Map());
+  const lineTimeoutsRef = useRef<Map<HTMLDivElement, number>>(new Map());
 
   useEffect(() => {
     const gridContainer = containerRef.current;
