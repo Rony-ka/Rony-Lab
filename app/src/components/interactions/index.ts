@@ -5,6 +5,7 @@ export { LinesPianoColor } from './LinesPianoColor';
 export { LinesSpreadBW } from './LinesSpreadBW';
 export { LinesSpreadColor } from './LinesSpreadColor';
 export { LinesPressGrow } from './LinesPressGrow';
+export { CursorAnxiety } from './CursorAnxiety';
 
 // Export all config types
 export type { LinesRotationBWConfig } from './LinesRotationBW';
@@ -13,4 +14,5 @@ export type { LinesPianoColorConfig } from './LinesPianoColor';
 export type { LinesSpreadBWConfig } from './LinesSpreadBW';
 export type { LinesSpreadColorConfig } from './LinesSpreadColor';
 export type { LinesPressGrowConfig } from './LinesPressGrow';
+export type { CursorAnxietyConfig } from './CursorAnxiety';
 

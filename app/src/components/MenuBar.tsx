@@ -6,7 +6,8 @@ export type InteractionType =
   | 'piano-color'
   | 'spread-bw'
   | 'spread-color'
-  | 'press-grow';
+  | 'press-grow'
+  | 'anxiety';
 
 export type MenuTheme = 'light' | 'dark';
 
@@ -19,9 +20,10 @@ interface MenuBarProps {
 const tabs: { id: InteractionType; label: string }[] = [
   { id: 'piano-bw', label: 'Echo' },
   { id: 'piano-color', label: 'Color Echo' },
-  { id: 'spread-bw', label: 'Radiate' },
-  { id: 'spread-color', label: 'Color Radiate' },
+  { id: 'spread-bw', label: 'Push' },
+  { id: 'spread-color', label: 'Color Push' },
   { id: 'press-grow', label: 'Gravity' },
+  { id: 'anxiety', label: 'Anxiety' },
 ];
 
 export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme }) => {
