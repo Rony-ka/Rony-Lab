@@ -57,12 +57,11 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
 
   return (
     <div
-      className="w-full flex items-center justify-center"
+      className="flex items-center justify-end"
       style={{
         position: 'absolute',
-        bottom: '16px',
-        left: 0,
-        right: 0,
+        top: '16px',
+        right: '16px',
         zIndex: 1000,
         pointerEvents: 'none',
       }}
