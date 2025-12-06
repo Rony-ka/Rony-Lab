@@ -46,7 +46,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   return (
     <div 
       ref={dropdownRef} 
-      className="relative w-full"
+      className="relative w-full mb-4"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}

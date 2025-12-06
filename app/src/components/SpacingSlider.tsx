@@ -57,7 +57,7 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
 
   return (
     <>
-      <div className="flex gap-[8px] items-center px-0 sm:px-[8px] py-0 sm:py-[3px] rounded-[10px] sm:h-[34px] justify-center" style={{ flex: '1', minWidth: '100px' }}>
+      <div className="flex gap-[8px] items-center px-0 sm:px-[8px] py-3 sm:py-[3px] rounded-[10px] w-full sm:w-auto sm:h-[34px] justify-center mt-0 sm:my-0">
         <input
           type="range"
           min={0}

@@ -8,6 +8,7 @@ import {
   removePointerUpListener,
   removePointerMoveListener,
 } from '../../utils/touchSupport';
+import { adjustRadiusGrowthRate } from '../../utils/deviceDetection';
 
 export interface LinesSpreadBWConfig {
   gridRowHeight?: number;
@@ -109,8 +110,9 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
     const animate = () => {
       if (isMouseDownRef.current) {
         const elapsedTime = (Date.now() - mouseDownTimeRef.current) / 1000;
+        const adjustedGrowthRate = adjustRadiusGrowthRate(radiusGrowthRate);
         currentRadiusRef.current = Math.min(
-          baseInteractionRadius + radiusGrowthRate * elapsedTime,
+          baseInteractionRadius + adjustedGrowthRate * elapsedTime,
           maxInteractionRadius
         );
       } else {

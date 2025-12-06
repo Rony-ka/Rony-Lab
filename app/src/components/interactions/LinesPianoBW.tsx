@@ -10,6 +10,7 @@ import {
   addPointerEnterListener,
   addPointerLeaveListener,
 } from '../../utils/touchSupport';
+import { adjustRadiusGrowthRate } from '../../utils/deviceDetection';
 
 export interface LinesPianoBWConfig {
   gridRowHeight?: number;
@@ -387,9 +388,10 @@ export const LinesPianoBW: React.FC<LinesPianoBWConfig> = ({
 
       activateLinesInRadius();
 
+      const adjustedGrowthRate = adjustRadiusGrowthRate(radiusGrowthRate);
       radiusGrowthIntervalRef.current = window.setInterval(() => {
         if (affectionRadiusRef.current < maxRadius) {
-          affectionRadiusRef.current += radiusGrowthRate / 60;
+          affectionRadiusRef.current += adjustedGrowthRate / 60;
           activateLinesInRadius();
         }
       }, 1000 / 60);

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { adjustRadiusGrowthRate } from '../../utils/deviceDetection';
 
 export interface LinesSpreadColorConfig {
   gridRowHeight?: number;
@@ -103,7 +104,8 @@ export const LinesSpreadColor: React.FC<LinesSpreadColorConfig> = ({
       // Update target radius
       if (isDownRef.current) {
         const elapsed = (Date.now() - downTimeRef.current) / 1000;
-        targetRadiusRef.current = Math.min(baseRadius + growthRate * elapsed, maxRadius);
+        const adjustedGrowthRate = adjustRadiusGrowthRate(growthRate);
+        targetRadiusRef.current = Math.min(baseRadius + adjustedGrowthRate * elapsed, maxRadius);
       } else {
         targetRadiusRef.current = baseRadius;
       }
