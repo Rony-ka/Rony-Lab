@@ -78,7 +78,6 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
             cursor: 'pointer',
             transition: 'all 0.2s ease-in-out',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'none',
           }}
           className="slider"
         />

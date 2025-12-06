@@ -12,15 +12,13 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Prevent touch behaviors that interfere with interactions */
-  touch-action: manipulation;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
 }
 
 /* Allow text selection for specific elements if needed */
-input, textarea, [contenteditable] {
+input, textarea, [contenteditable], select {
   -webkit-user-select: auto;
   user-select: auto;
 }
@@ -33,8 +31,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure smooth touch interactions */
-button, a, [role="button"] {
+/* Ensure smooth touch interactions for UI controls only */
+button, a, [role="button"], select, input[type="range"] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
