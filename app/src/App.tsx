@@ -72,15 +72,12 @@ function App() {
         }}
       >
         <div 
-          className="flex flex-col sm:flex-row items-center gap-3 sm:gap-[8px] px-3 py-2 sm:px-[3px] sm:py-[2px] rounded-[9px] max-w-full"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-0 sm:gap-[8px] px-3 py-3 sm:px-[3px] sm:py-[2px] rounded-[9px] w-[90vw] sm:w-auto max-w-full"
           style={{
             backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
           }}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onMouseMove={(e) => e.stopPropagation()}
           onMouseUp={(e) => e.stopPropagation()}
