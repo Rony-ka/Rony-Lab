@@ -56,55 +56,38 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
   };
 
   return (
-    <div
-      className="flex items-center justify-end"
-      style={{
-        position: 'absolute',
-        top: '16px',
-        right: '16px',
-        zIndex: 1000,
-        pointerEvents: 'none',
-      }}
-    >
-      <div 
-        className="flex flex-col gap-[10px] px-[3px] py-[2px] rounded-[9px] overflow-hidden"
-        style={{
-          backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          pointerEvents: 'auto'
-        }}
-      >
-        <div className="flex gap-[8px] h-[34px] items-center px-[8px] py-[3px] rounded-[10px]">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={sliderValue}
-                  onChange={handleChange}
-                  onDoubleClick={handleDoubleClick}
-                  style={{
-                    width: '180px',
-                    height: '4px',
-                    borderRadius: '2px',
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    background: isDark
-                      ? `linear-gradient(to right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.3) ${sliderValue}%, rgba(255,255,255,0.1) ${sliderValue}%, rgba(255,255,255,0.1) 100%)`
-                      : `linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.3) ${sliderValue}%, rgba(0,0,0,0.1) ${sliderValue}%, rgba(0,0,0,0.1) 100%)`,
-                    outline: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease-in-out',
-                  }}
-                  className="slider"
-                />
-        </div>
+    <>
+      <div className="flex gap-[8px] items-center px-[8px] py-[6px] sm:py-[3px] rounded-[10px] min-h-[40px] sm:min-h-[34px] w-full sm:w-auto justify-center">
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={sliderValue}
+          onChange={handleChange}
+          onDoubleClick={handleDoubleClick}
+          style={{
+            width: 'clamp(140px, 60vw, 180px)',
+            height: '4px',
+            borderRadius: '2px',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            background: isDark
+              ? `linear-gradient(to right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.3) ${sliderValue}%, rgba(255,255,255,0.1) ${sliderValue}%, rgba(255,255,255,0.1) 100%)`
+              : `linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.3) ${sliderValue}%, rgba(0,0,0,0.1) ${sliderValue}%, rgba(0,0,0,0.1) 100%)`,
+            outline: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'none',
+          }}
+          className="slider"
+        />
       </div>
       <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          width: 14px;
-          height: 14px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
           background: #333333;
           cursor: pointer;
@@ -119,8 +102,8 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
           transform: scale(1.05);
         }
         .slider::-moz-range-thumb {
-          width: 14px;
-          height: 14px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
           background: #333333;
           cursor: pointer;
@@ -135,8 +118,18 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
         .slider::-moz-range-thumb:active {
           transform: scale(1.05);
         }
+        @media (max-width: 640px) {
+          .slider::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+          }
+          .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+          }
+        }
       `}</style>
-    </div>
+    </>
   );
 };
 

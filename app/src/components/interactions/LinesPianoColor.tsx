@@ -1,4 +1,15 @@
 import React, { useEffect, useRef } from 'react';
+import {
+  getPointerPosition,
+  addPointerDownListener,
+  addPointerUpListener,
+  addPointerMoveListener,
+  removePointerDownListener,
+  removePointerUpListener,
+  removePointerMoveListener,
+  addPointerEnterListener,
+  addPointerLeaveListener,
+} from '../../utils/touchSupport';
 
 export interface LinesPianoColorConfig {
   gridRowHeight?: number;
@@ -186,7 +197,7 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
           growTimeout: null,
         });
 
-        line.addEventListener('mouseenter', () => {
+        const handleLineEnter = () => {
           if (isMouseDownRef.current) return;
 
           const state = lineStatesRef.current.get(line)!;
@@ -221,9 +232,9 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
               }
             }, growDuration);
           }
-        });
+        };
 
-        line.addEventListener('mouseleave', () => {
+        const handleLineLeave = () => {
           if (isMouseDownRef.current) return;
 
           const state = lineStatesRef.current.get(line)!;
@@ -247,14 +258,21 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
 
             lineTimeoutsRef.current.set(line, timeoutId);
           }
-        });
+        };
+
+        addPointerEnterListener(line, handleLineEnter);
+        addPointerLeaveListener(line, handleLineLeave);
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleMouseDown = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e) {
+        e.preventDefault();
+      }
       isMouseDownRef.current = true;
-      mouseXRef.current = e.clientX;
-      mouseYRef.current = e.clientY;
+      const pos = getPointerPosition(e);
+      mouseXRef.current = pos.clientX;
+      mouseYRef.current = pos.clientY;
       affectionRadiusRef.current = minRadius;
 
       activateLinesInRadius();
@@ -317,9 +335,13 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
       });
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseXRef.current = e.clientX;
-      mouseYRef.current = e.clientY;
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e && isMouseDownRef.current) {
+        e.preventDefault();
+      }
+      const pos = getPointerPosition(e);
+      mouseXRef.current = pos.clientX;
+      mouseYRef.current = pos.clientY;
 
       if (isMouseDownRef.current) {
         activateLinesInRadius();
@@ -330,9 +352,9 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
       setTimeout(populateGrid, 200);
     };
 
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousemove', handleMouseMove);
+    addPointerDownListener(document, handleMouseDown);
+    addPointerUpListener(document, handleMouseUp);
+    addPointerMoveListener(document, handleMouseMove);
     window.addEventListener('resize', handleResize);
 
     populateGrid();
@@ -346,9 +368,9 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
         styleRef.current.parentNode.removeChild(styleRef.current);
         styleRef.current = null;
       }
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('mousemove', handleMouseMove);
+      removePointerDownListener(document, handleMouseDown);
+      removePointerUpListener(document, handleMouseUp);
+      removePointerMoveListener(document, handleMouseMove);
       window.removeEventListener('resize', handleResize);
     };
   }, [

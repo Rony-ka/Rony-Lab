@@ -1,4 +1,13 @@
 import React, { useEffect, useRef } from 'react';
+import {
+  getPointerPosition,
+  addPointerDownListener,
+  addPointerUpListener,
+  addPointerMoveListener,
+  removePointerDownListener,
+  removePointerUpListener,
+  removePointerMoveListener,
+} from '../../utils/touchSupport';
 
 export interface LinesSpreadBWConfig {
   gridRowHeight?: number;
@@ -115,19 +124,27 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePosRef.current.x = e.clientX;
-      mousePosRef.current.y = e.clientY;
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e && isMouseDownRef.current) {
+        e.preventDefault();
+      }
+      const pos = getPointerPosition(e);
+      mousePosRef.current.x = pos.clientX;
+      mousePosRef.current.y = pos.clientY;
       if (!isMouseDownRef.current) {
         updateLinePositions();
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleMouseDown = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e) {
+        e.preventDefault();
+      }
       isMouseDownRef.current = true;
       mouseDownTimeRef.current = Date.now();
-      mousePosRef.current.x = e.clientX;
-      mousePosRef.current.y = e.clientY;
+      const pos = getPointerPosition(e);
+      mousePosRef.current.x = pos.clientX;
+      mousePosRef.current.y = pos.clientY;
       animate();
     };
 
@@ -160,9 +177,9 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
       }, 200);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
+    addPointerMoveListener(window, handleMouseMove);
+    addPointerDownListener(window, handleMouseDown);
+    addPointerUpListener(window, handleMouseUp);
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('resize', handleResize);
 
@@ -172,9 +189,9 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
+      removePointerMoveListener(window, handleMouseMove);
+      removePointerDownListener(window, handleMouseDown);
+      removePointerUpListener(window, handleMouseUp);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('resize', handleResize);
     };

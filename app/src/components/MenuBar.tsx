@@ -48,50 +48,31 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   };
   
   return (
-    <div 
-      className="w-full flex items-center justify-center"
-      style={{ 
-        position: 'absolute',
-        top: '16px',
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        pointerEvents: 'none'
-      }}
-    >
-      <div 
-        className="flex flex-col gap-[10px] px-[3px] py-[2px] rounded-[9px] overflow-hidden"
-        style={{
-          backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          pointerEvents: 'auto'
-        }}
-      >
-        <div className="flex gap-[8px] h-[34px] items-center p-[3px] rounded-[10px]">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              onMouseEnter={() => setHoveredTab(tab.id)}
-              onMouseLeave={() => setHoveredTab(null)}
-              className="flex items-center justify-center px-[8px] py-[3px] rounded-[6px] transition-all duration-200 ease-in-out"
-              style={{
-                backgroundColor: getTabBackgroundColor(tab.id),
-                color: getTabTextColor(tab.id),
-                fontSize: '13px',
-                fontWeight: 500,
-                lineHeight: 1.45,
-                whiteSpace: 'nowrap',
-                backdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
-                WebkitBackdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="flex flex-wrap gap-[6px] sm:gap-[8px] items-center p-[3px] rounded-[10px] justify-center max-w-full">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id)}
+          onMouseEnter={() => setHoveredTab(tab.id)}
+          onMouseLeave={() => setHoveredTab(null)}
+          onTouchStart={() => setHoveredTab(tab.id)}
+          onTouchEnd={() => setHoveredTab(null)}
+          className="flex items-center justify-center px-[10px] sm:px-[8px] py-[6px] sm:py-[3px] rounded-[6px] transition-all duration-200 ease-in-out touch-manipulation min-h-[40px] sm:min-h-[34px]"
+          style={{
+            backgroundColor: getTabBackgroundColor(tab.id),
+            color: getTabTextColor(tab.id),
+            fontSize: '13px',
+            fontWeight: 500,
+            lineHeight: 1.45,
+            whiteSpace: 'nowrap',
+            backdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
+            WebkitBackdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
+            WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
   );
 };

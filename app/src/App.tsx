@@ -56,24 +56,50 @@ function App() {
     }
   };
 
+  const isDark = getTheme(activeTab) === 'dark';
+
   return (
     <div className="w-full h-full relative overflow-hidden">
-      <MenuBar 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-        theme={getTheme(activeTab)}
-      />
+      {/* Centered container for MenuBar and SpacingSlider */}
+      <div 
+        className="w-full flex items-center justify-center px-2 sm:px-0"
+        style={{ 
+          position: 'absolute',
+          top: '12px',
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          pointerEvents: 'none'
+        }}
+      >
+        <div 
+          className="flex flex-col sm:flex-row items-center gap-2 sm:gap-[8px] px-[3px] py-[2px] rounded-[9px] max-w-full"
+          style={{
+            backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            pointerEvents: 'auto'
+          }}
+        >
+          <MenuBar 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab} 
+            theme={getTheme(activeTab)}
+          />
+          <SpacingSlider
+            value={gridColWidth}
+            onChange={setGridColWidth}
+            theme={getTheme(activeTab)}
+            min={10}
+            max={70}
+            defaultValue={ORIGINAL_SPACING}
+          />
+        </div>
+      </div>
+      
       <div className="w-full h-full">
         {renderInteraction()}
       </div>
-      <SpacingSlider
-        value={gridColWidth}
-        onChange={setGridColWidth}
-        theme={getTheme(activeTab)}
-        min={10}
-        max={70}
-        defaultValue={ORIGINAL_SPACING}
-      />
     </div>
   );
 }

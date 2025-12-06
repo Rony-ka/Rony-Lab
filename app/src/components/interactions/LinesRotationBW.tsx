@@ -1,4 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import {
+  addPointerEnterListener,
+  addPointerLeaveListener,
+} from '../../utils/touchSupport';
 
 export interface LinesRotationBWConfig {
   gridRowHeight?: number;
@@ -83,7 +87,7 @@ export const LinesRotationBW: React.FC<LinesRotationBWConfig> = ({
         };
         lineStatesRef.current.set(line, state);
 
-        line.addEventListener('mouseover', () => {
+        const handleLineOver = () => {
           if (lineTimeoutsRef.current.has(line)) {
             clearTimeout(lineTimeoutsRef.current.get(line)!);
             lineTimeoutsRef.current.delete(line);
@@ -111,9 +115,9 @@ export const LinesRotationBW: React.FC<LinesRotationBWConfig> = ({
             state.animationFrameId = requestAnimationFrame(animateLineSpin);
           };
           state.animationFrameId = requestAnimationFrame(animateLineSpin);
-        });
+        };
 
-        line.addEventListener('mouseout', () => {
+        const handleLineOut = () => {
           const state = lineStatesRef.current.get(line);
           if (!state || !state.isActive) return;
 
@@ -130,7 +134,10 @@ export const LinesRotationBW: React.FC<LinesRotationBWConfig> = ({
           }, easeOutDelay);
 
           lineTimeoutsRef.current.set(line, timeoutId);
-        });
+        };
+
+        addPointerEnterListener(line, handleLineOver);
+        addPointerLeaveListener(line, handleLineOut);
       }
     };
 
