@@ -1,4 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+// Detect if device is mobile
+const isMobileDevice = (): boolean => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+};
 
 export interface CursorAnxietyConfig {
   gridRowHeight?: number;
@@ -39,6 +45,7 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
   const interactionPointRef = useRef({ x: 0, y: 0, active: false });
   const isPressedRef = useRef(false);
   const animationFrameRef = useRef<number>();
+  const [isMobile] = useState(isMobileDevice());
 
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -112,10 +119,13 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
         let newTargetOffsetX = 0;
         let newTargetOffsetY = 0;
 
-        // If pressed, return to original position and rotation
-        if (isPressedRef.current) {
-          // Targets are already 0, cursors will lerp back to original state
-        } else if (interactionPointRef.current.active) {
+        // Mobile: follow touch while pressed, return when released
+        // Desktop: follow hover, return when pressed
+        const shouldFollow = isMobile 
+          ? (isPressedRef.current && interactionPointRef.current.active)
+          : (!isPressedRef.current && interactionPointRef.current.active);
+
+        if (shouldFollow) {
           const dx = interactionPointRef.current.x - cursorCenterX;
           const dy = interactionPointRef.current.y - cursorCenterY;
           const distance = Math.sqrt(dx * dx + dy * dy);
@@ -152,8 +162,9 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
         }
 
         // Use faster lerp when returning to original position/rotation
-        const returnLerpFactor = isPressedRef.current ? 0.08 : lerpFactor;
-        const movementLerpFactor = isPressedRef.current ? 0.08 : 0.01;
+        const isReturning = isMobile ? !isPressedRef.current : isPressedRef.current;
+        const returnLerpFactor = isReturning ? 0.08 : lerpFactor;
+        const movementLerpFactor = isReturning ? 0.08 : 0.01;
         
         cursor.currentRotation = lerp(cursor.currentRotation, newTargetRotation, returnLerpFactor);
         cursor.currentOffsetX = lerp(cursor.currentOffsetX, newTargetOffsetX, movementLerpFactor);
