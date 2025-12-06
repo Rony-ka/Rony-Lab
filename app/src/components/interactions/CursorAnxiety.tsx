@@ -170,7 +170,6 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
     };
 
     const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
       const touch = e.touches[0];
       interactionPointRef.current.x = touch.clientX;
       interactionPointRef.current.y = touch.clientY;
@@ -179,6 +178,7 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent scrolling during touch move
       const touch = e.touches[0];
       interactionPointRef.current.x = touch.clientX;
       interactionPointRef.current.y = touch.clientY;
@@ -215,9 +215,9 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
       setTimeout(populateGrid, 200);
     };
 
-    window.addEventListener('touchstart', handleTouchStart, { passive: false });
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
