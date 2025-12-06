@@ -50,17 +50,17 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   return (
     <>
       {/* Mobile Dropdown - visible only on small screens */}
-      <div className="block sm:hidden w-full">
+      <div className="block sm:hidden w-full mb-4">
         <select
           value={activeTab}
           onChange={(e) => onTabChange(e.target.value as InteractionType)}
           onTouchStart={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
-          className="w-full px-4 py-2 rounded-[8px] cursor-pointer outline-none"
+          className="w-full px-4 py-3 rounded-[16px] cursor-pointer outline-none"
           style={{
             backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.95)',
+            color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
             fontSize: '15px',
             fontWeight: 500,
             border: 'none',

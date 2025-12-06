@@ -42,5 +42,40 @@ body {
   overscroll-behavior-y: contain;
 }
 
+/* Style the dropdown select element on mobile */
+select {
+  /* Make the dropdown menu appear below the select */
+  background-clip: padding-box;
+}
+
+/* Style the dropdown options */
+select option {
+  background-color: rgba(0, 0, 0, 0.95);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+/* Selected option in dropdown */
+select option:checked {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* For dark theme dropdowns */
+@media (prefers-color-scheme: dark) {
+  select option {
+    background-color: rgba(0, 0, 0, 0.95);
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* For light theme dropdowns */
+@media (prefers-color-scheme: light) {
+  select option {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.9);
+  }
+}
+
 
 
