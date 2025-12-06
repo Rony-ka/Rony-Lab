@@ -87,8 +87,8 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
       <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          width: 18px;
-          height: 18px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
           background: #333333;
           cursor: pointer;
@@ -103,8 +103,8 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
           transform: scale(1.05);
         }
         .slider::-moz-range-thumb {
-          width: 18px;
-          height: 18px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
           background: #333333;
           cursor: pointer;
@@ -121,12 +121,12 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
         }
         @media (max-width: 640px) {
           .slider::-webkit-slider-thumb {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
           }
           .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
           }
         }
       `}</style>
