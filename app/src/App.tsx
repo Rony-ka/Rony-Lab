@@ -73,7 +73,7 @@ function App() {
         }}
       >
         <div 
-          className="flex flex-col sm:flex-row items-center gap-2 sm:gap-[8px] px-[3px] py-[2px] rounded-[9px] max-w-full"
+          className="flex flex-col sm:flex-row items-center gap-3 sm:gap-[8px] px-3 py-2 sm:px-[3px] sm:py-[2px] rounded-[9px] max-w-full"
           style={{
             backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
             backdropFilter: 'blur(8px)',

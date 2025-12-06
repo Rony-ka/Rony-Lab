@@ -48,32 +48,56 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   };
   
   return (
-    <div className="flex flex-wrap gap-[6px] sm:gap-[8px] items-center p-[3px] rounded-[10px] justify-center max-w-full h-[34px]">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          onMouseEnter={() => setHoveredTab(tab.id)}
-          onMouseLeave={() => setHoveredTab(null)}
-          onTouchStart={() => setHoveredTab(tab.id)}
-          onTouchEnd={() => setHoveredTab(null)}
-          className="flex items-center justify-center px-[8px] py-[3px] rounded-[6px] transition-all duration-200 ease-in-out touch-manipulation"
+    <>
+      {/* Mobile Dropdown - visible only on small screens */}
+      <div className="block sm:hidden">
+        <select
+          value={activeTab}
+          onChange={(e) => onTabChange(e.target.value as InteractionType)}
+          className="px-4 py-2 rounded-[6px] appearance-none cursor-pointer outline-none"
           style={{
-            backgroundColor: getTabBackgroundColor(tab.id),
-            color: getTabTextColor(tab.id),
-            fontSize: '13px',
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            color: isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)',
+            fontSize: '15px',
             fontWeight: 500,
-            lineHeight: 1.45,
-            whiteSpace: 'nowrap',
-            backdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
-            WebkitBackdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
+            border: 'none',
+            minWidth: '140px',
             WebkitTapHighlightColor: 'transparent',
           }}
         >
-          {tab.label}
-        </button>
-      ))}
-    </div>
+          {tabs.map((tab) => (
+            <option key={tab.id} value={tab.id}>
+              {tab.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop Buttons - visible only on larger screens */}
+      <div className="hidden sm:flex gap-[8px] items-center p-[3px] rounded-[10px] h-[34px]">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            onMouseEnter={() => setHoveredTab(tab.id)}
+            onMouseLeave={() => setHoveredTab(null)}
+            className="flex items-center justify-center px-[8px] py-[3px] rounded-[6px] transition-all duration-200 ease-in-out"
+            style={{
+              backgroundColor: getTabBackgroundColor(tab.id),
+              color: getTabTextColor(tab.id),
+              fontSize: '13px',
+              fontWeight: 500,
+              lineHeight: 1.45,
+              whiteSpace: 'nowrap',
+              backdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
+              WebkitBackdropFilter: activeTab === tab.id ? 'blur(10px)' : undefined,
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    </>
   );
 };
 

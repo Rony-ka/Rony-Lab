@@ -57,7 +57,7 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
 
   return (
     <>
-      <div className="flex gap-[8px] h-[34px] items-center px-[8px] py-[3px] rounded-[10px] w-full sm:w-auto justify-center">
+      <div className="flex gap-[8px] items-center px-[8px] py-[3px] rounded-[10px] w-full sm:w-auto sm:h-[34px] justify-center">
         <input
           type="range"
           min={0}
@@ -66,7 +66,7 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
           onChange={handleChange}
           onDoubleClick={handleDoubleClick}
           style={{
-            width: 'clamp(140px, 60vw, 180px)',
+            width: 'clamp(160px, 70vw, 180px)',
             height: '4px',
             borderRadius: '2px',
             appearance: 'none',
