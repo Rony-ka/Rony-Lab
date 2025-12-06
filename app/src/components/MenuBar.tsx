@@ -54,15 +54,21 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
         <select
           value={activeTab}
           onChange={(e) => onTabChange(e.target.value as InteractionType)}
-          className="px-4 py-2 rounded-[6px] appearance-none cursor-pointer outline-none"
+          className="px-4 py-2 rounded-[8px] cursor-pointer outline-none"
           style={{
-            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-            color: isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)',
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.95)',
             fontSize: '15px',
             fontWeight: 500,
-            border: 'none',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)'}`,
             minWidth: '140px',
-            WebkitTapHighlightColor: 'transparent',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            appearance: 'none',
+            backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 1L6 6L11 1' stroke='${isDark ? '%23fff' : '%23000'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 12px center',
+            paddingRight: '36px',
           }}
         >
           {tabs.map((tab) => (

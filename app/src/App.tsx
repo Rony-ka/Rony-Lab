@@ -69,7 +69,6 @@ function App() {
           left: 0,
           right: 0,
           zIndex: 1000,
-          pointerEvents: 'none'
         }}
       >
         <div 
@@ -78,7 +77,6 @@ function App() {
             backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            pointerEvents: 'auto'
           }}
         >
           <MenuBar 
