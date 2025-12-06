@@ -87,12 +87,13 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute left-0 right-0 mt-2 rounded-[16px] overflow-hidden shadow-lg z-50"
+          className="absolute left-0 right-0 mt-2 rounded-[16px] overflow-hidden shadow-lg"
           style={{
             backgroundColor: isDark ? 'rgba(30, 30, 30, 0.98)' : 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+            zIndex: 1100,
           }}
         >
           {options.map((option) => (

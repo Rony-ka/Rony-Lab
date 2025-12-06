@@ -72,11 +72,13 @@ function App() {
         }}
       >
         <div 
-          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-0 sm:gap-[8px] px-3 py-3 sm:px-[3px] sm:py-[2px] rounded-[16px] sm:rounded-[9px] w-[90vw] sm:w-auto max-w-full"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-0 sm:gap-[8px] px-3 py-3 sm:px-[3px] sm:py-[2px] rounded-[18px] sm:rounded-[9px] w-[90vw] sm:w-auto max-w-full"
           style={{
             backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
+            position: 'relative',
+            zIndex: 1000,
           }}
           onMouseDown={(e) => e.stopPropagation()}
           onMouseMove={(e) => e.stopPropagation()}
