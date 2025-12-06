@@ -46,10 +46,13 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   return (
     <div 
       ref={dropdownRef} 
-      className="relative w-full mb-4"
+      className="relative w-full"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
+      style={{
+        zIndex: 1001,
+      }}
     >
       {/* Dropdown Button */}
       <button
@@ -87,13 +90,15 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute left-0 right-0 mt-2 rounded-[16px] overflow-hidden shadow-lg"
+          className="fixed left-[5vw] right-[5vw] rounded-[16px] overflow-hidden shadow-lg"
           style={{
             backgroundColor: isDark ? 'rgba(30, 30, 30, 0.98)' : 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-            zIndex: 1100,
+            zIndex: 10000,
+            top: `${dropdownRef.current?.getBoundingClientRect().bottom ?? 0 + 8}px`,
+            maxWidth: '90vw',
           }}
         >
           {options.map((option) => (

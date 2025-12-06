@@ -51,7 +51,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   return (
     <>
       {/* Mobile Dropdown - visible only on small screens */}
-      <div className="block sm:hidden w-full">
+      <div className="block sm:hidden" style={{ minWidth: '140px', flex: '1' }}>
         <CustomDropdown
           value={activeTab}
           onChange={onTabChange}
