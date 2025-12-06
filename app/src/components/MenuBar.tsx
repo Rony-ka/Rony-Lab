@@ -48,7 +48,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   };
   
   return (
-    <div className="flex flex-wrap gap-[6px] sm:gap-[8px] items-center p-[3px] rounded-[10px] justify-center max-w-full">
+    <div className="flex flex-wrap gap-[6px] sm:gap-[8px] items-center p-[3px] rounded-[10px] justify-center max-w-full h-[34px]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -57,7 +57,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
           onMouseLeave={() => setHoveredTab(null)}
           onTouchStart={() => setHoveredTab(tab.id)}
           onTouchEnd={() => setHoveredTab(null)}
-          className="flex items-center justify-center px-[10px] sm:px-[8px] py-[6px] sm:py-[3px] rounded-[6px] transition-all duration-200 ease-in-out touch-manipulation min-h-[40px] sm:min-h-[34px]"
+          className="flex items-center justify-center px-[8px] py-[3px] rounded-[6px] transition-all duration-200 ease-in-out touch-manipulation"
           style={{
             backgroundColor: getTabBackgroundColor(tab.id),
             color: getTabTextColor(tab.id),

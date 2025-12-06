@@ -65,7 +65,7 @@ function App() {
         className="w-full flex items-center justify-center px-2 sm:px-0"
         style={{ 
           position: 'absolute',
-          top: '12px',
+          top: '16px',
           left: 0,
           right: 0,
           zIndex: 1000,
