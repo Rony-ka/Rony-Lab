@@ -57,7 +57,7 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
 
   return (
     <>
-      <div className="flex gap-[8px] items-center px-[8px] py-3 sm:py-[3px] rounded-[10px] w-full sm:w-auto sm:h-[34px] justify-center my-2 sm:my-0">
+      <div className="flex gap-[8px] items-center px-0 sm:px-[8px] py-3 sm:py-[3px] rounded-[10px] w-full sm:w-auto sm:h-[34px] justify-center my-2 sm:my-0">
         <input
           type="range"
           min={0}
@@ -68,8 +68,8 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
           onTouchStart={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
+          className="slider w-full sm:w-[180px]"
           style={{
-            width: 'clamp(160px, 80vw, 180px)',
             height: '4px',
             borderRadius: '2px',
             appearance: 'none',
@@ -82,7 +82,6 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
             transition: 'all 0.2s ease-in-out',
             WebkitTapHighlightColor: 'transparent',
           }}
-          className="slider"
         />
       </div>
       <style>{`

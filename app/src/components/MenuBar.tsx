@@ -54,13 +54,16 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
         <select
           value={activeTab}
           onChange={(e) => onTabChange(e.target.value as InteractionType)}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
           className="w-full px-4 py-2 rounded-[8px] cursor-pointer outline-none"
           style={{
             backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
             color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.95)',
             fontSize: '15px',
             fontWeight: 500,
-            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)'}`,
+            border: 'none',
             WebkitAppearance: 'none',
             MozAppearance: 'none',
             appearance: 'none',
