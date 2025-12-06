@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CustomDropdown } from './CustomDropdown';
 
 export type InteractionType = 
   | 'rotation-bw'
@@ -50,35 +51,13 @@ export const MenuBar: React.FC<MenuBarProps> = ({ activeTab, onTabChange, theme 
   return (
     <>
       {/* Mobile Dropdown - visible only on small screens */}
-      <div className="block sm:hidden w-full mb-4">
-        <select
+      <div className="block sm:hidden w-full">
+        <CustomDropdown
           value={activeTab}
-          onChange={(e) => onTabChange(e.target.value as InteractionType)}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          className="w-full px-4 py-3 rounded-[16px] cursor-pointer outline-none"
-          style={{
-            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-            color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
-            fontSize: '15px',
-            fontWeight: 500,
-            border: 'none',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            appearance: 'none',
-            backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 1L6 6L11 1' stroke='${isDark ? '%23fff' : '%23000'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 12px center',
-            paddingRight: '36px',
-          }}
-        >
-          {tabs.map((tab) => (
-            <option key={tab.id} value={tab.id}>
-              {tab.label}
-            </option>
-          ))}
-        </select>
+          onChange={onTabChange}
+          options={tabs}
+          theme={theme}
+        />
       </div>
 
       {/* Desktop Buttons - visible only on larger screens */}
