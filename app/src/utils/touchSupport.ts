@@ -36,7 +36,7 @@ export const getPointerPosition = (
  * Add both mouse and touch event listeners
  */
 export const addPointerDownListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.addEventListener('mousedown', handler as EventListener);
@@ -44,7 +44,7 @@ export const addPointerDownListener = (
 };
 
 export const addPointerUpListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.addEventListener('mouseup', handler as EventListener);
@@ -52,7 +52,7 @@ export const addPointerUpListener = (
 };
 
 export const addPointerMoveListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.addEventListener('mousemove', handler as EventListener);
@@ -60,7 +60,7 @@ export const addPointerMoveListener = (
 };
 
 export const removePointerDownListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.removeEventListener('mousedown', handler as EventListener);
@@ -68,7 +68,7 @@ export const removePointerDownListener = (
 };
 
 export const removePointerUpListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.removeEventListener('mouseup', handler as EventListener);
@@ -76,7 +76,7 @@ export const removePointerUpListener = (
 };
 
 export const removePointerMoveListener = (
-  element: HTMLElement | Document,
+  element: HTMLElement | Document | Window,
   handler: (e: MouseEvent | TouchEvent) => void
 ) => {
   element.removeEventListener('mousemove', handler as EventListener);
