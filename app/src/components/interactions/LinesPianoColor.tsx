@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   getPointerPosition,
   addPointerDownListener,
@@ -54,6 +54,7 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
   shrinkDuration = 1500,
   shrinkDelay = 1200,
 }) => {
+  const [gridDimensions, setGridDimensions] = useState({ cols: 0, rows: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const styleRef = useRef<HTMLStyleElement | null>(null);
   const lineStatesRef = useRef<Map<HTMLDivElement, LineState>>(new Map());
@@ -183,6 +184,9 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
       const rowsThatFit = Math.ceil(viewportHeight / gridRowHeight);
       const colsThatFit = Math.ceil(viewportWidth / gridColWidth);
       const numLinesToCreate = rowsThatFit * colsThatFit;
+      
+      // Store grid dimensions for CSS grid template
+      setGridDimensions({ cols: colsThatFit, rows: rowsThatFit });
 
       for (let i = 0; i < numLinesToCreate; i++) {
         const line = document.createElement('div');
@@ -397,8 +401,8 @@ export const LinesPianoColor: React.FC<LinesPianoColorConfig> = ({
         ref={containerRef}
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(auto-fill, ${gridColWidth}px)`,
-          gridTemplateRows: `repeat(auto-fill, ${gridRowHeight}px)`,
+          gridTemplateColumns: gridDimensions.cols > 0 ? `repeat(${gridDimensions.cols}, ${gridColWidth}px)` : `repeat(auto-fill, ${gridColWidth}px)`,
+          gridTemplateRows: gridDimensions.rows > 0 ? `repeat(${gridDimensions.rows}, ${gridRowHeight}px)` : `repeat(auto-fill, ${gridRowHeight}px)`,
           width: '100vw',
           height: '100vh',
           boxSizing: 'border-box',

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   getPointerPosition,
   addPointerDownListener,
@@ -35,6 +35,7 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
   lineHeight = 46,
   backgroundColor = '#ffffff',
 }) => {
+  const [gridDimensions, setGridDimensions] = useState({ cols: 0, rows: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const lineElementsRef = useRef<HTMLDivElement[]>([]);
   const mousePosRef = useRef({ x: 0, y: 0 });
@@ -57,6 +58,9 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
       const colsThatFit = Math.ceil(viewportWidth / gridColWidth);
 
       const numLinesToCreate = rowsThatFit * colsThatFit;
+      
+      // Store grid dimensions for CSS grid template
+      setGridDimensions({ cols: colsThatFit, rows: rowsThatFit });
 
       lineElementsRef.current = [];
 
@@ -215,8 +219,8 @@ export const LinesSpreadBW: React.FC<LinesSpreadBWConfig> = ({
         ref={containerRef}
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(auto-fill, ${gridColWidth}px)`,
-          gridTemplateRows: `repeat(auto-fill, ${gridRowHeight}px)`,
+          gridTemplateColumns: gridDimensions.cols > 0 ? `repeat(${gridDimensions.cols}, ${gridColWidth}px)` : `repeat(auto-fill, ${gridColWidth}px)`,
+          gridTemplateRows: gridDimensions.rows > 0 ? `repeat(${gridDimensions.rows}, ${gridRowHeight}px)` : `repeat(auto-fill, ${gridRowHeight}px)`,
           width: '100vw',
           height: '100vh',
           boxSizing: 'border-box',
