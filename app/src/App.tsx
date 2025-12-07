@@ -101,13 +101,15 @@ function App() {
         </div>
 
         {/* Mobile: Separate containers */}
-        <div className="flex sm:hidden flex-row items-center gap-3 w-[90vw] max-w-full">
+        <div className="flex sm:hidden flex-row items-stretch gap-3 w-[90vw] max-w-full">
           <div
-            className="px-3 py-3 rounded-[18px]"
+            className="rounded-[18px]"
             style={{
               backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
+              width: '35%',
+              padding: '12px 14px',
             }}
           >
             <MenuBar 
@@ -118,11 +120,15 @@ function App() {
           </div>
 
           <div
-            className="flex-1 px-3 py-3 rounded-[18px]"
+            className="rounded-[18px]"
             style={{
               backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
+              width: '65%',
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <SpacingSlider

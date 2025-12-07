@@ -24,8 +24,8 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
   // Recalculate menu position when opened
   useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
       setMenuPosition({
         top: rect.bottom + 8,
         left: rect.left,
