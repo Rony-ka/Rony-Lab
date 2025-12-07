@@ -26,10 +26,14 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   useEffect(() => {
     if (isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
+      // Get parent container (with padding) position
+      const parent = dropdownRef.current.parentElement?.parentElement;
+      const parentRect = parent?.getBoundingClientRect();
+      
       setMenuPosition({
         top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width,
+        left: parentRect ? parentRect.left : rect.left,
+        width: parentRect ? parentRect.width : rect.width,
       });
     }
   }, [isOpen, value]);

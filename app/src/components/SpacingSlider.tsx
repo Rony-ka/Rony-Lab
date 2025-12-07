@@ -85,6 +85,10 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
         />
       </div>
       <style>{`
+        .slider {
+          touch-action: pan-x;
+          -webkit-tap-highlight-color: transparent;
+        }
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 14px;
@@ -121,12 +125,12 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
         }
         @media (max-width: 640px) {
           .slider::-webkit-slider-thumb {
-            width: 16px;
-            height: 16px;
+            width: 22px;
+            height: 22px;
           }
           .slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 22px;
+            height: 22px;
           }
         }
       `}</style>
