@@ -32,7 +32,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       
       setMenuPosition({
         top: rect.bottom + 8,
-        left: parentRect ? parentRect.left : rect.left,
+        left: parentRect ? parentRect.left - 20 : rect.left - 20,
         width: parentRect ? parentRect.width : rect.width,
       });
     }

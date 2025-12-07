@@ -109,7 +109,7 @@ function App() {
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
               width: '35%',
-              padding: '12px',
+              padding: '12px 14px',
             }}
           >
             <MenuBar 

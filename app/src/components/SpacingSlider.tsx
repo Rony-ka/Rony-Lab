@@ -125,12 +125,12 @@ export const SpacingSlider: React.FC<SpacingSliderProps> = ({
         }
         @media (max-width: 640px) {
           .slider::-webkit-slider-thumb {
-            width: 22px;
-            height: 22px;
+            width: 16px;
+            height: 16px;
           }
           .slider::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
+            width: 16px;
+            height: 16px;
           }
         }
       `}</style>
