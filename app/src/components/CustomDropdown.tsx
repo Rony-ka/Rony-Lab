@@ -16,9 +16,23 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0 });
   const isDark = theme === 'dark';
 
   const selectedOption = options.find(opt => opt.id === value);
+
+  // Recalculate menu position when opened
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  }, [isOpen, value]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -46,24 +60,27 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   return (
     <div 
       ref={dropdownRef} 
-      className="relative w-full mb-4"
+      className="relative w-auto flex-shrink-0"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       style={{
         zIndex: 1001,
+        minWidth: '140px',
       }}
     >
       {/* Dropdown Button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 rounded-[16px] cursor-pointer outline-none text-left flex items-center justify-between"
+        className="w-full px-4 py-2 rounded-[12px] cursor-pointer outline-none text-left flex items-center justify-between"
         style={{
           backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
           color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
           fontSize: '15px',
           fontWeight: 500,
           border: 'none',
+          whiteSpace: 'nowrap',
         }}
       >
         <span>{selectedOption?.label}</span>
@@ -90,14 +107,16 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="fixed left-[5vw] right-[5vw] rounded-[16px] overflow-hidden shadow-lg"
+          className="fixed rounded-[12px] overflow-hidden shadow-lg"
           style={{
             backgroundColor: isDark ? 'rgba(30, 30, 30, 0.98)' : 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
             zIndex: 10000,
-            top: `${dropdownRef.current?.getBoundingClientRect().bottom ?? 0 + 8}px`,
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+            minWidth: `${menuPosition.width}px`,
             maxWidth: '90vw',
           }}
         >
