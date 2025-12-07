@@ -60,8 +60,8 @@ export const CursorAnxiety: React.FC<CursorAnxietyConfig> = ({
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const rowsThatFit = Math.floor(viewportHeight / gridRowHeight);
-      const colsThatFit = Math.floor(viewportWidth / gridColWidth);
+      const rowsThatFit = Math.ceil(viewportHeight / gridRowHeight);
+      const colsThatFit = Math.ceil(viewportWidth / gridColWidth);
 
       const numCursorsToCreate = rowsThatFit * colsThatFit;
 

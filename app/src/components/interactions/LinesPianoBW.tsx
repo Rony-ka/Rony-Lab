@@ -196,8 +196,8 @@ export const LinesPianoBW: React.FC<LinesPianoBWConfig> = ({
 
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const rowsThatFit = Math.floor(viewportHeight / gridRowHeight);
-      const colsThatFit = Math.floor(viewportWidth / gridColWidth);
+      const rowsThatFit = Math.ceil(viewportHeight / gridRowHeight);
+      const colsThatFit = Math.ceil(viewportWidth / gridColWidth);
       const numLinesToCreate = rowsThatFit * colsThatFit;
 
       for (let i = 0; i < numLinesToCreate; i++) {

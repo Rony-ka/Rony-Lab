@@ -62,7 +62,7 @@ export const LinesRotationBW: React.FC<LinesRotationBWConfig> = ({
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const rowsThatFit = Math.floor(viewportHeight / gridRowHeight);
+      const rowsThatFit = Math.ceil(viewportHeight / gridRowHeight);
       const colsThatFit = Math.ceil(viewportWidth / gridColWidth);
 
       const numLinesToCreate = rowsThatFit * colsThatFit;

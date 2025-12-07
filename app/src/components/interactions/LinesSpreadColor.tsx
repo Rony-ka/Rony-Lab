@@ -59,8 +59,8 @@ export const LinesSpreadColor: React.FC<LinesSpreadColorConfig> = ({
     const populate = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const cols = Math.floor(w / gridColWidth);
-      const rows = Math.floor(h / gridRowHeight);
+      const cols = Math.ceil(w / gridColWidth);
+      const rows = Math.ceil(h / gridRowHeight);
 
       const total = Math.min(cols * rows, 2000);
 
