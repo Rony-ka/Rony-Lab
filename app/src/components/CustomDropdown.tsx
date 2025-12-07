@@ -66,21 +66,21 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       onClick={(e) => e.stopPropagation()}
       style={{
         zIndex: 1001,
-        minWidth: '140px',
       }}
     >
       {/* Dropdown Button */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-2 rounded-[12px] cursor-pointer outline-none text-left flex items-center justify-between"
+        className="w-full cursor-pointer outline-none text-left flex items-center justify-between gap-2"
         style={{
-          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+          backgroundColor: 'transparent',
           color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
-          fontSize: '15px',
+          fontSize: '16px',
           fontWeight: 500,
           border: 'none',
           whiteSpace: 'nowrap',
+          padding: 0,
         }}
       >
         <span>{selectedOption?.label}</span>

@@ -70,22 +70,20 @@ function App() {
           right: 0,
           zIndex: 1000,
         }}
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseMove={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
-        <div 
-          className="flex flex-row items-center gap-[12px] px-3 py-3 sm:px-[3px] sm:py-[2px] rounded-[18px] sm:rounded-[9px] w-[90vw] sm:w-auto max-w-full"
+        {/* Desktop: Single container with both components */}
+        <div className="hidden sm:flex flex-row items-center gap-[8px] px-[3px] py-[2px] rounded-[9px] w-auto"
           style={{
             backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            position: 'relative',
-            zIndex: 1000,
           }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseMove={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
         >
           <MenuBar 
             activeTab={activeTab} 
@@ -100,6 +98,42 @@ function App() {
             max={70}
             defaultValue={ORIGINAL_SPACING}
           />
+        </div>
+
+        {/* Mobile: Separate containers */}
+        <div className="flex sm:hidden flex-row items-center gap-3 w-[90vw] max-w-full">
+          <div
+            className="px-3 py-3 rounded-[18px]"
+            style={{
+              backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            <MenuBar 
+              activeTab={activeTab} 
+              onTabChange={setActiveTab} 
+              theme={getTheme(activeTab)}
+            />
+          </div>
+
+          <div
+            className="flex-1 px-3 py-3 rounded-[18px]"
+            style={{
+              backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(175,175,175,0.04)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            <SpacingSlider
+              value={gridColWidth}
+              onChange={setGridColWidth}
+              theme={getTheme(activeTab)}
+              min={10}
+              max={70}
+              defaultValue={ORIGINAL_SPACING}
+            />
+          </div>
         </div>
       </div>
       
